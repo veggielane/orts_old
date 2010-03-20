@@ -1,0 +1,39 @@
+
+engineers:
+  engineers will be people and there will be lots of them. They will be in each building and so will repair things automatically. They will be able to go help units (see auto defence building).
+
+give units set tasks:
+  unit can be given a task, say defend opening into allied territory, patrol area, etc.
+  units can be temporarily taken off this task to do something else, but will remember to go back to the main task after.
+  other units can fill in for them if they are moved away?
+
+units:
+  SAS can be researched once a platoon has enough experience. SAS good for stealth, destroying targets, defending a remote position etc.
+  when platoons lose men replacements will be sent in automatically (with less skill). If replacements have plenty of time to train before being called in they will have more veterancy.
+  
+  
+combat:
+  units will want to save their own lives allowing them to gain/keep veterancy more easily. e.g a platoon in a fire fight will pull back (use smoke?) if they are being beaten.
+  
+research:
+  each research item has stages (design, testing, complete)
+  can research multiple items at once with priorities.
+  research items only come available once they have been thought of. This could be after another research has completed, or from combat, spontaneous, etc
+  research must be tested before it can be rolled out fully. i.e designate a platoon or vehicle to test the research in combat or trainin area. Once its tested everything can use it.
+  unit veterency will lead to new research items making people want to fight more.
+  
+  
+research testing:
+  A specific area specified for testing larger research items (i.e. nukes, new units etc)
+  If enemy spys on area they get a heads up.
+
+research buildings:
+  research will be conducted in schools. Many schools will be able to be built.
+  One main one will be upgraded to the head research building (it is not until this point when research can be prioritised.
+  
+automatic defence building:
+  Once a unit is defending an area, engineers can be told to go help them improve the defence, i.e build better bunkers etc. More things will be researchable.
+  
+tunnels:
+  later in the game engineers will start building the base into the ground, this will not be visible initially to the enemy. This will help defend against air attacks, nukes.
+  
