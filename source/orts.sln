@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orts.Core.Tests", "Tests\Or
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tester", "Tester\Tester.csproj", "{4E887A52-AE85-4586-AFCE-ADB94A5A6C15}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfTester", "WpfTester\WpfTester.csproj", "{ACD6ADCE-6C1C-43CB-9519-5A597FAB4A7C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,6 +51,16 @@ Global
 		{4E887A52-AE85-4586-AFCE-ADB94A5A6C15}.Release|Mixed Platforms.Build.0 = Release|x86
 		{4E887A52-AE85-4586-AFCE-ADB94A5A6C15}.Release|x86.ActiveCfg = Release|x86
 		{4E887A52-AE85-4586-AFCE-ADB94A5A6C15}.Release|x86.Build.0 = Release|x86
+		{ACD6ADCE-6C1C-43CB-9519-5A597FAB4A7C}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{ACD6ADCE-6C1C-43CB-9519-5A597FAB4A7C}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{ACD6ADCE-6C1C-43CB-9519-5A597FAB4A7C}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{ACD6ADCE-6C1C-43CB-9519-5A597FAB4A7C}.Debug|x86.ActiveCfg = Debug|x86
+		{ACD6ADCE-6C1C-43CB-9519-5A597FAB4A7C}.Debug|x86.Build.0 = Debug|x86
+		{ACD6ADCE-6C1C-43CB-9519-5A597FAB4A7C}.Release|Any CPU.ActiveCfg = Release|x86
+		{ACD6ADCE-6C1C-43CB-9519-5A597FAB4A7C}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{ACD6ADCE-6C1C-43CB-9519-5A597FAB4A7C}.Release|Mixed Platforms.Build.0 = Release|x86
+		{ACD6ADCE-6C1C-43CB-9519-5A597FAB4A7C}.Release|x86.ActiveCfg = Release|x86
+		{ACD6ADCE-6C1C-43CB-9519-5A597FAB4A7C}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

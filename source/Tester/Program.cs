@@ -6,6 +6,12 @@ using Orts.Core.Timing;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Orts.Core.GameObjects;
+using Orts.Core.Primitives;
+using Ninject;
+using Ninject.Modules;
+using System.Diagnostics;
+using Orts.Core.MessageTypes;
 
 namespace Orts.Core
 {
@@ -13,50 +19,104 @@ namespace Orts.Core
     {
         static void Main(string[] args)
         {
+
+            var kernal = new StandardKernel(new TestModule());
+
             var messages = new StringWriter();
 
 
-            using (var timer = new ObservableTimer(25))
+            using (var engine = kernal.Get<GameEngine>())
             {
-                timer.TimerMessages.Subscribe(m =>
+                engine.Timer.TimerMessages.Subscribe(m =>
                     {
-                        Console.WriteLine("{0} - {1}".fmt(m.CurrentTime.ToStringSafe("hh:mm:ss.fff"), m.Message));
-                        messages.WriteLine("{0} - {1}".fmt(m.CurrentTime.ToStringSafe("hh:mm:ss.fff"), m.Message));
-                    });
-
-                timer.Subscribe(d =>
-                    {
-                        Console.WriteLine("{0:hh:mm:ss.fff} - TICK".fmt(d));
-                        messages.WriteLine("{0:hh:mm:ss.fff} - TICK".fmt(d));
+                        Console.WriteLine("{0} - {1}".fmt(m.CurrentTickTime.GameTimeElapsed.ToString(), m.Message));
+                        messages.WriteLine("{0} - {1}".fmt(m.CurrentTickTime.GameTimeElapsed.ToString(), m.Message));
                     });
 
 
-                var cancelSource = new CancellationTokenSource();
-
-
-                var finishTask = new Task(o =>
+                engine.Timer.Subscribe(t =>
                     {
-                        while (true)
-                        {
-                            Console.ReadKey(true);
+                        Console.WriteLine("Doing stuff.");
+                        messages.WriteLine("Doing stuff.");
+                    });
 
-                            if (((CancellationToken)o).IsCancellationRequested)
-                                break;
-                            timer.Stop();
-                        }
-                    }, cancelSource.Token);
-                 
-                finishTask.Start();
 
-                timer.Start();
+                engine.Bus.OfType<SystemMessage>().Subscribe(m => Debug.WriteLine("{0} SYSTEM - {1}", m.TimeSent.ToString(),m.Message));
 
-                cancelSource.Cancel();
+                Setup(engine);
+
+                bool finish = false;
+                while (!finish)
+                {
+                    engine.Start();
+
+                    Console.ReadKey(true);
+
+                    engine.Stop();
+
+                    if (Console.ReadKey(true).Key == ConsoleKey.Escape)
+                        finish = true;
+                }
 
                 Console.WriteLine("Timer should have stopped.");
                 Console.WriteLine("Press any key to continue...");
                 Console.ReadKey(true);
 
             }
+        }
+
+        private static void Setup(GameEngine engine)
+        {
+
+            engine.Timer.Subscribe(t =>
+                {
+                    foreach (var item in engine.MapItems().OfType<TempItem>())
+                    {
+                        Console.WriteLine(item.ToString());
+                    }
+                });
+
+            engine.ObjectFactory.GameObjects.Add(new TempItem(engine.Bus) { Velocity = new Vector2(0, 0) });
+            engine.ObjectFactory.GameObjects.Add(new TempItem(engine.Bus) { Velocity = new Vector2(1, 1) });
+
+        }
+    }
+
+    public class TestModule : NinjectModule
+    {
+        public override void  Load()
+        {
+            Kernel.Bind<GameEngine>().ToSelf();
+            Kernel.Bind<ObservableTimer>().To<AsyncObservableTimer>();
+            Kernel.Bind<MessageBus>().ToSelf().InSingletonScope();
+        }
+    }
+
+
+    class TempItem : IMapGO
+    {
+        public MessageBus Bus { get; private set; }
+        public Vector2 Position { get; set; }
+        public Vector2 Velocity { get; set; }
+
+        public TempItem(MessageBus bus)
+        {
+            Bus = bus;
+            Position = new Vector2();
+            Velocity = new Vector2();
+        }
+
+
+        public void Update(TickTime tickTime)
+        {
+            Position = Position.Add(Velocity.Multiply(tickTime.GameTimeDelta.TotalSeconds));
+        }
+
+
+
+        public override string ToString()
+        {
+            return "TempItem - {{Pos:{0}}}".fmt(Position);
         }
     }
 }

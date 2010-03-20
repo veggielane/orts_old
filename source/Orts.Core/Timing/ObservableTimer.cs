@@ -7,70 +7,71 @@ using System.Threading;
 
 namespace Orts.Core.Timing
 {
-    public class ObservableTimer:Observable<DateTime>
+    public class ObservableTimer : Observable<TickTime>
     {
         public Observable<TimerMessage> TimerMessages { get; private set; }
-        public int TickMilliseconds { get; private set; }
+        public TimeSpan TickDelta { get; set; }
         public TimerState State { get; private set; }
-        public DateTime? LastTick { get; private set; }
+        public TickTime LastTickTime { get; private set; }
 
-        public ObservableTimer(int tickMilliseconds)
+        public ObservableTimer()
         {
-            TickMilliseconds = tickMilliseconds;
+            TickDelta = TimeSpan.FromMilliseconds(25);
             TimerMessages = new Observable<TimerMessage>();
             State = TimerState.Stopped;
+            LastTickTime = new TickTime();
         }
 
-        public void Start()
+        public virtual void Start()
         {
             if (State == TimerState.Running)
             {
-                TimerMessages.OnNext(new TimerMessage() { Message = "Cannot start, Timer already running.", CurrentTime = LastTick });
+                TimerMessages.OnNext(new TimerMessage() { Message = "Cannot start, Timer already running.", CurrentTickTime = LastTickTime });
                 return;
             }
 
             if (State == TimerState.Stopping)
             {
-                TimerMessages.OnNext(new TimerMessage() { Message = "Cannot start, Timer stopping.", CurrentTime = LastTick });
+                TimerMessages.OnNext(new TimerMessage() { Message = "Cannot start, Timer stopping.", CurrentTickTime = LastTickTime });
                 return;
             }
 
             State = TimerState.Running;
-            TimerMessages.OnNext(new TimerMessage() { Message = "Timer started.", CurrentTime = LastTick });
+            TimerMessages.OnNext(new TimerMessage() { Message = "Timer started.", CurrentTickTime = LastTickTime });
 
             while (State == TimerState.Running)
             {
-                LastTick = OrtsGlobals.Now();
+                this.OnNext(LastTickTime);
 
-                this.OnNext(LastTick.Value);
+                var currentElapsed = LastTickTime.CurrentElapsed();
 
-                var currentTime = OrtsGlobals.Now();
-
-                var tickTime = currentTime - LastTick.Value;
-
-                if (tickTime.Milliseconds < TickMilliseconds)
+                if (currentElapsed < TickDelta)
                 {
-                    Thread.Sleep(TickMilliseconds - tickTime.Milliseconds);
+                    Thread.Sleep(TickDelta - currentElapsed);
                 }
                 else
-                    TimerMessages.OnNext(new TimerMessage() { Message = "Tick over ran by {0}ms.".fmt(tickTime.Milliseconds - TickMilliseconds), CurrentTime = LastTick });
+                    TimerMessages.OnNext(new TimerMessage() { Message = "Tick over ran by {0:0.000}ms.".fmt((currentElapsed - TickDelta).TotalMilliseconds), CurrentTickTime = LastTickTime });
 
+
+                TimerMessages.OnNext(new TimerMessage() { Message = "Total tick time {0:0.000}ms.".fmt(LastTickTime.CurrentElapsed().TotalMilliseconds), CurrentTickTime = LastTickTime });
+
+                LastTickTime.Update(TickDelta);
             }
 
             State = TimerState.Stopped;
-            TimerMessages.OnNext(new TimerMessage() { Message = "Timer stopped.", CurrentTime = LastTick });
+            TimerMessages.OnNext(new TimerMessage() { Message = "Timer stopped.", CurrentTickTime = LastTickTime });
             
         }
 
-        public void Stop()
+        public virtual void Stop()
         {
             if (State == TimerState.Running)
             {
                 State = TimerState.Stopping;
-                TimerMessages.OnNext(new TimerMessage() { Message = "Timer stopping.", CurrentTime = LastTick });
+                TimerMessages.OnNext(new TimerMessage() { Message = "Timer stopping.", CurrentTickTime = LastTickTime });
             }
             else
-                TimerMessages.OnNext(new TimerMessage() { Message = "Cannot stop, Timer already stopped.", CurrentTime = LastTick });
+                TimerMessages.OnNext(new TimerMessage() { Message = "Cannot stop, Timer already stopped.", CurrentTickTime = LastTickTime });
 
         }
 

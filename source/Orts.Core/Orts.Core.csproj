@@ -33,6 +33,8 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.CoreEx, Version=1.0.4.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Reactive, Version=1.0.4.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -43,12 +45,28 @@
     <Compile Include="Collections\BasicBag.cs" />
     <Compile Include="Collections\IBag.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
+    <Compile Include="Extensions\ObservableExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="GameEngine.cs" />
+    <Compile Include="GameObjectFactory.cs" />
+    <Compile Include="GameObjects\IGameObject.cs" />
+    <Compile Include="GameObjects\IHasPosition.cs" />
+    <Compile Include="GameObjects\IMapGO.cs" />
+    <Compile Include="IHasMessageBus.cs" />
+    <Compile Include="MessageBus.cs" />
+    <Compile Include="MessageTypes\BaseMessage.cs" />
+    <Compile Include="MessageTypes\IMessage.cs" />
+    <Compile Include="MessageTypes\SystemMessage.cs" />
+    <Compile Include="MessageTypes\ObjectCreationRequest.cs" />
     <Compile Include="OrtsGlobals.cs" />
+    <Compile Include="Primitives\Vector2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reactive\AnonymousDisposable.cs" />
     <Compile Include="Reactive\Observable.cs" />
+    <Compile Include="Timing\AsyncObservableTimer.cs" />
+    <Compile Include="Timing\IGameTime.cs" />
     <Compile Include="Timing\ObservableTimer.cs" />
+    <Compile Include="Timing\TickTime.cs" />
     <Compile Include="Timing\TimerMessage.cs" />
   </ItemGroup>
   <ItemGroup />

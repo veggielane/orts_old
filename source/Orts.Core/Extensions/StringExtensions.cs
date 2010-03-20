@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Orts
+namespace Orts.Core
 {
     public static class StringExtensions
     {
