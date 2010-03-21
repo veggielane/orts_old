@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Collections.Concurrent;
+using Orts.Core.Collections;
 
 namespace Orts.Core.Reactive
 {
 
     public class Observable<T> : IObservable<T>, IDisposable
     {
-        private List<IObserver<T>> _subscribers = new List<IObserver<T>>();
+        private ICollection<IObserver<T>> _subscribers = new List<IObserver<T>>();
 
         public void OnNext(T value)
         {

@@ -6,7 +6,7 @@
         Title="MainWindow" Height="350" Width="525">
 
     <DockPanel LastChildFill="True">
-        <Label x:Name="SysMessage" DockPanel.Dock="Right" Width="100">
+        <Label x:Name="SysMessage" DockPanel.Dock="Right" Width="200">
         </Label>
         <Canvas x:Name="Panel">
         </Canvas>

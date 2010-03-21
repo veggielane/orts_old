@@ -61,8 +61,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="TempItemView.xaml.cs">
-      <DependentUpon>TempItemView.xaml</DependentUpon>
+    <Compile Include="TestTankView.xaml.cs">
+      <DependentUpon>TestTankView.xaml</DependentUpon>
     </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -76,7 +76,7 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="TempItemView.xaml">
+    <Page Include="TestTankView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -110,6 +110,10 @@
     <ProjectReference Include="..\Orts.Core\Orts.Core.csproj">
       <Project>{BA74DBAD-B3F0-4FCF-956A-E33697A5B1EA}</Project>
       <Name>Orts.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TestGame\TestGame.csproj">
+      <Project>{3A90BA80-3DD6-43AD-B6EC-BEE2FEE095B1}</Project>
+      <Name>TestGame</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

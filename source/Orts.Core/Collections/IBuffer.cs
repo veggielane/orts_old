@@ -5,11 +5,10 @@ using System.Text;
 
 namespace Orts.Core.Collections
 {
-    public interface IBag<T> :IEnumerable<T>
+    public interface IBuffer<T> :IEnumerable<T>
     {
         void Add(T item);
         int Count();
         void Clear();
-        IEnumerable<T> GetEnumerableWithRemove();
     }
 }

@@ -5,22 +5,22 @@ using System.Text;
 
 namespace Orts.Core.Collections
 {
-    public class BasicBag<T> :IBag<T>
+    public class Buffer<T> : IBuffer<T>
     {
         private List<T> Items { get; set; }
 
-        public BasicBag()
+        public Buffer()
         {
             Items = new List<T>();
         }
 
-        #region IBag<T> Members
+        #region BasIBuffericBuffer<T> Members
 
         public void Add(T item)
         {
             Items.Add(item);
         }
-        
+
         public int Count()
         {
             return Items.Count;
@@ -30,23 +30,15 @@ namespace Orts.Core.Collections
         {
             Items.Clear();
         }
-
-        public IEnumerable<T> GetEnumerableWithRemove()
-        {
-            foreach (var item in this)
-            {
-                yield return item;
-            }
-
-            Items.Clear();
-        }
         #endregion
-        
+
         #region IEnumerable<T> Members
 
         public IEnumerator<T> GetEnumerator()
         {
-            return Items.GetEnumerator();
+            var tempItems = Items.ToList();
+            Items.Clear();
+            return tempItems.GetEnumerator();
         }
 
         #endregion

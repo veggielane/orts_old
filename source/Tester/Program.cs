@@ -11,7 +11,7 @@ using Orts.Core.Primitives;
 using Ninject;
 using Ninject.Modules;
 using System.Diagnostics;
-using Orts.Core.MessageTypes;
+using Orts.Core.Messages;
 
 namespace Orts.Core
 {
@@ -89,6 +89,7 @@ namespace Orts.Core
             Kernel.Bind<GameEngine>().ToSelf();
             Kernel.Bind<ObservableTimer>().To<AsyncObservableTimer>();
             Kernel.Bind<MessageBus>().ToSelf().InSingletonScope();
+            Kernel.Bind<BusFilters>().ToSelf();
         }
     }
 

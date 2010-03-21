@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Orts.Core
+namespace Orts.Core.Messages
 {
-    public interface IHasMessageBus
+    public interface IObjectLifetimeNotification
     {
-        MessageBus Bus { get; }
     }
 }

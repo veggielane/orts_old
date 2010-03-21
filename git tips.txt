@@ -1,0 +1,27 @@
+To start:
+  git clone ... (this will create a new repo dir)
+  
+  git checkout rich-dev (this will create and get rich-dev branch.)
+
+
+To use a branch:
+  git checkout (-b) rich-dev : (-b) will create branch
+  git pull rich-dev
+  
+To commit a branch:
+  When checked out to that branch
+  git add .
+  git status
+  git commit -m "commit message..."
+  git push origin rich-dev
+
+To merge a branch:
+  commit branch to be merged in...
+  git branch master
+  git pull rich-dev
+  git merge master rich-dev
+  git push
+
+to merge changes from master to rich-dev:
+  when in rich dev
+  git merge rich-dev master

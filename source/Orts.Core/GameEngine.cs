@@ -5,7 +5,7 @@ using System.Text;
 using Orts.Core.Timing;
 using Orts.Core.GameObjects;
 using System.Threading.Tasks;
-using Orts.Core.MessageTypes;
+using Orts.Core.Messages;
 
 namespace Orts.Core
 {

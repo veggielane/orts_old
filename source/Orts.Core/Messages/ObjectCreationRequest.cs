@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using Orts.Core.Timing;
 
-namespace Orts.Core.MessageTypes
+namespace Orts.Core.Messages
 {
-    public class ObjectCreationRequest : BaseMessage
+    public class ObjectCreationRequest : BaseMessage, IObjectLifetimeRequest
     {
 
         public Type ObjectType { get; private set; }

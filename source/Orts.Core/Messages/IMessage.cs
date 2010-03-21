@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Orts.Core.Timing;
 
-namespace Orts.Core.MessageTypes
+namespace Orts.Core.Messages
 {
     public interface IMessage
     {

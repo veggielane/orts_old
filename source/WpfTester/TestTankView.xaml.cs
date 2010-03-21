@@ -17,25 +17,25 @@ namespace WpfTester
     /// <summary>
     /// Interaction logic for UserControl1.xaml
     /// </summary>
-    public partial class TempItemView : UserControl
+    public partial class TestTankView : UserControl
     {
-        public TempItem Item { get; set; }
-        public Canvas ParentCanvas { get; set; }
+        public TestTankViewModel Model { get; set; }
 
-
-        public TempItemView()
+        public TestTankView()
         {
             InitializeComponent();
         }
 
-        public TempItemView(TempItem item, Canvas canvas)
+        public TestTankView(TestTankViewModel model)
             :this()
         {
-            this.Item = item;
-            this.DataContext = item;
-            this.ParentCanvas = canvas;
+            this.Model = model;
+            this.DataContext = model;
+        }
 
-            this.ParentCanvas.Children.Add(this);
+        protected override void OnMouseDown(MouseButtonEventArgs e)
+        {
+            Model.Destroy();
         }
     }
 }

@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tester", "Tester\Tester.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfTester", "WpfTester\WpfTester.csproj", "{ACD6ADCE-6C1C-43CB-9519-5A597FAB4A7C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestGame", "TestGame\TestGame.csproj", "{3A90BA80-3DD6-43AD-B6EC-BEE2FEE095B1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +63,16 @@ Global
 		{ACD6ADCE-6C1C-43CB-9519-5A597FAB4A7C}.Release|Mixed Platforms.Build.0 = Release|x86
 		{ACD6ADCE-6C1C-43CB-9519-5A597FAB4A7C}.Release|x86.ActiveCfg = Release|x86
 		{ACD6ADCE-6C1C-43CB-9519-5A597FAB4A7C}.Release|x86.Build.0 = Release|x86
+		{3A90BA80-3DD6-43AD-B6EC-BEE2FEE095B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A90BA80-3DD6-43AD-B6EC-BEE2FEE095B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A90BA80-3DD6-43AD-B6EC-BEE2FEE095B1}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{3A90BA80-3DD6-43AD-B6EC-BEE2FEE095B1}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{3A90BA80-3DD6-43AD-B6EC-BEE2FEE095B1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3A90BA80-3DD6-43AD-B6EC-BEE2FEE095B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A90BA80-3DD6-43AD-B6EC-BEE2FEE095B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A90BA80-3DD6-43AD-B6EC-BEE2FEE095B1}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{3A90BA80-3DD6-43AD-B6EC-BEE2FEE095B1}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{3A90BA80-3DD6-43AD-B6EC-BEE2FEE095B1}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

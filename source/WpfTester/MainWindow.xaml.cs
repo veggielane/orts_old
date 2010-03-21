@@ -19,7 +19,8 @@ using System.Diagnostics;
 using System.ComponentModel;
 using Ninject;
 using Ninject.Modules;
-using Orts.Core.MessageTypes;
+using Orts.Core.Messages;
+using TestGame;
 
 namespace WpfTester
 {
@@ -29,26 +30,29 @@ namespace WpfTester
     public partial class MainWindow : Window
     {
         public GameEngine Engine { get; set; }
-        public List<TempItemView> ItemViews { get; set; }
+        public Dictionary<IGameObject, TestTankView> Views { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
 
 
-            var kernal = new StandardKernel();
+            var kernel = new StandardKernel();
 
-            kernal.Bind<GameEngine>().ToSelf();
-            kernal.Bind<ObservableTimer>().To<AsyncObservableTimer>();
-            kernal.Bind<MessageBus>().ToSelf().InSingletonScope();
-            kernal.Bind<GameObjectFactory>().To<TempGameObjectFactory>();
-            kernal.Bind<List<TempItemView>>().ToConstant(new List<TempItemView>());
-            kernal.Bind<Canvas>().ToConstant(this.Panel);
+            kernel.Bind<GameEngine>().ToSelf();
+            kernel.Bind<ObservableTimer>().To<AsyncObservableTimer>();
+            kernel.Bind<MessageBus>().ToSelf().InSingletonScope();
+            kernel.Bind<GameObjectFactory>().To<TestGameObjectFactory>().InSingletonScope();
+            kernel.Bind<BusFilters>().ToSelf();
+            kernel.Bind<Dictionary<IGameObject, TestTankView>>().ToConstant(new Dictionary<IGameObject, TestTankView>());
+            kernel.Bind<Canvas>().ToConstant(this.Panel);
 
-            ItemViews = kernal.Get<List<TempItemView>>();
-            Engine = kernal.Get<GameEngine>();
+            Views = kernel.Get<Dictionary<IGameObject, TestTankView>>();
+            Engine = kernel.Get<GameEngine>();
 
             Setup(Engine);
+
+            var viewFactory = kernel.Get<TestGameViewFactory>();
 
             Engine.Start();
         }
@@ -59,7 +63,7 @@ namespace WpfTester
 
             Observable.FromEvent((EventHandler<MouseButtonEventArgs> ev) => new MouseButtonEventHandler(ev),
                 ev => this.MouseDoubleClick += ev,
-                ev => this.MouseDoubleClick -= ev).Subscribe(e => 
+                ev => this.MouseDoubleClick -= ev).Where(e => e.EventArgs.ChangedButton == MouseButton.Left).Subscribe(e => 
                     {
                         if (engine.IsRunning)
                             engine.Stop();
@@ -67,44 +71,27 @@ namespace WpfTester
                             engine.Start();
                     });
 
-            Observable.FromEvent((EventHandler<MouseButtonEventArgs> ev) => new MouseButtonEventHandler(ev),
-                ev => this.MouseRightButtonUp += ev,
-                ev => this.MouseRightButtonUp -= ev).Subscribe(e =>
+            Observable.FromEvent((EventHandler<KeyEventArgs> ev) => new KeyEventHandler(ev),
+                ev => this.KeyDown += ev,
+                ev => this.KeyDown -= ev).Where(e => e.EventArgs.Key == Key.C).Subscribe(e =>
                 {
-                    engine.Bus.Add(new ObjectCreationRequest(engine.Timer.LastTickTime, typeof(TempItem)));
+                    Debug.WriteLine("C pressed.");
+                    engine.Bus.Add(new ObjectCreationRequest(engine.Timer.LastTickTime, typeof(TestTank)));
                 });
 
             engine.Timer.Subscribe(t =>
             {
-                foreach (var item in engine.MapItems().OfType<TempItemViewModel>())
+                foreach (var view in Views.Values)
                 {
-                    item.NotifyPropertyChanged();
-                }
-            });
-
-            engine.Timer.Subscribe(t =>
-            {
-                foreach (var item in engine.MapItems().OfType<TempItem>())
-                {
-                    Debug.WriteLine(item.ToString());
+                    view.Model.NotifyPropertyChanged();
                 }
             });
 
             engine.Bus.OfType<SystemMessage>().Subscribe(m => SysMessage.Dispatcher.Invoke(new Action(() => SysMessage.Content += m.Message + "\n")));
-
-            var item1 = new TempItemViewModel(engine.Bus) { Velocity = new Vector2(30, 30) };
-            var item1View = new TempItemView(item1, this.Panel);
+            engine.Bus.Filters.ObjectLifeTimeNotifications.Subscribe(m => SysMessage.Dispatcher.Invoke(new Action(() => SysMessage.Content += m.ToString() + "\n")));
 
 
-            var item2 = new TempItemViewModel(engine.Bus) { Position = new Vector2(100, 100), Velocity = new Vector2(-20, -20) };
-            var item2View = new TempItemView(item2, this.Panel);
-            item2.Color = Colors.Red;
-
-            ItemViews.Add(item1View);
-            ItemViews.Add(item2View);
-
-            Engine.ObjectFactory.GameObjects.Add(item1);
-            Engine.ObjectFactory.GameObjects.Add(item2);
+            engine.Bus.Add(new ObjectCreationRequest(engine.Timer.LastTickTime,typeof(TestTank)));
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
@@ -114,40 +101,14 @@ namespace WpfTester
         }
     }
 
-    public class TempItem : IMapGO
-    {
-        public MessageBus Bus { get; private set; }
-        public Vector2 Position { get; set; }
-        public Vector2 Velocity { get; set; }
-
-        public TempItem(MessageBus bus)
-        {
-            Bus = bus;
-            Position = new Vector2();
-            Velocity = new Vector2();
-        }
-
-
-        public void Update(TickTime tickTime)
-        {
-            Position = Position.Add(Velocity.Multiply(tickTime.GameTimeDelta.TotalSeconds));
-        }
-
-
-
-        public override string ToString()
-        {
-            return "TempItem - {{Pos:{0}}}".fmt(Position);
-        }
-    }
-
-    public class TempItemViewModel : TempItem, INotifyPropertyChanged
+    public class TestTankViewModel : INotifyPropertyChanged
     {
         public Color Color { get; set; }
+        public TestTank Tank { get; private set; }
 
-        public TempItemViewModel(MessageBus bus)
-            :base(bus)
+        public TestTankViewModel(TestTank tank)
         {
+            Tank = tank;
             Color = Colors.Blue;
         }
 
@@ -160,40 +121,74 @@ namespace WpfTester
             }
         }
 
+        public Vector2 Position
+        {
+            get { return Tank.Position; }
+        }
 
+        public Vector2 Velocity
+        {
+            get { return Tank.Velocity; }
+        }
 
         #region INotifyPropertyChanged Members
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         #endregion
+
+        internal void Destroy()
+        {
+            Tank.Bus.Add(new ObjectDestructionRequest(null, Tank));
+        }
     }
 
-    public class TempGameObjectFactory : GameObjectFactory
+    public class TestGameViewFactory:IHasMessageBus
     {
+        public GameEngine Engine { get; private set; }
+        public MessageBus  Bus { get; private set; }
         public Canvas Panel { get; private set; }
-        public List<TempItemView> ItemViews { get; private set; }
+        public Dictionary<IGameObject,TestTankView> Views { get; private set; }
 
-        public TempGameObjectFactory(MessageBus bus, Canvas panel, List<TempItemView> itemViews)
-            :base(bus)
+        public TestGameViewFactory(GameEngine engine, MessageBus bus, Canvas panel, Dictionary<IGameObject, TestTankView> views)
         {
+            Engine = engine;
+            Bus = bus;
             this.Panel = panel;
-            ItemViews = itemViews;
+            Views = views;
+
+            Bus.Filters.ObjectLifeTimeNotifications.OfType<ObjectCreated>().Subscribe(m => CreateView(m));
+            Bus.Filters.ObjectLifeTimeNotifications.OfType<ObjectDestroyed>().Subscribe(m => DestroyView(m));
+        }
+        
+        public void CreateView(ObjectCreated notification)
+        {
+            Panel.Dispatcher.Invoke(new Action(() => 
+                {
+                    if (notification.GameObject is TestTank)
+                    {
+                        var model = new TestTankViewModel((TestTank)notification.GameObject);
+
+                        TestTankView view = new TestTankView(model);
+
+                        Panel.Children.Add(view);
+
+                        Views.Add(notification.GameObject, view);
+                    }
+                }));
         }
 
-        public override void CreateGameObject(ObjectCreationRequest request)
+        public void DestroyView(ObjectDestroyed notification)
         {
-
-            if (request.ObjectType == typeof(TempItem))
-            {
-                var item = new TempItemViewModel(this.Bus) { Velocity = new Vector2(30, 30) };
-                TempItemView itemView = null;
-                Panel.Dispatcher.Invoke(new Action(() => itemView = new TempItemView(item, this.Panel)));
-
-                this.GameObjects.Add(item);
-                Panel.Dispatcher.Invoke(new Action(() => ItemViews.Add(itemView)));
-            }
-            base.CreateGameObject(request);
+            Panel.Dispatcher.Invoke(new Action(() =>
+                {
+                    if(Views.ContainsKey(notification.GameObject))
+                    {
+                        var view = Views[notification.GameObject];
+                        Panel.Children.Remove(view);
+                        Views.Remove(notification.GameObject);
+                    }
+                }));
         }
 
     }

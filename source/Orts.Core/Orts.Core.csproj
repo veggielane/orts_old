@@ -42,8 +42,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Collections\BasicBag.cs" />
-    <Compile Include="Collections\IBag.cs" />
+    <Compile Include="Collections\BasicBuffer.cs" />
+    <Compile Include="Collections\IBuffer.cs" />
+    <Compile Include="Collections\SafeCollection.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Extensions\ObservableExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
@@ -52,12 +53,18 @@
     <Compile Include="GameObjects\IGameObject.cs" />
     <Compile Include="GameObjects\IHasPosition.cs" />
     <Compile Include="GameObjects\IMapGO.cs" />
-    <Compile Include="IHasMessageBus.cs" />
-    <Compile Include="MessageBus.cs" />
-    <Compile Include="MessageTypes\BaseMessage.cs" />
-    <Compile Include="MessageTypes\IMessage.cs" />
-    <Compile Include="MessageTypes\SystemMessage.cs" />
-    <Compile Include="MessageTypes\ObjectCreationRequest.cs" />
+    <Compile Include="Messages\BusFilters.cs" />
+    <Compile Include="Messages\IHasMessageBus.cs" />
+    <Compile Include="Messages\IObjectLifetimeNotification.cs" />
+    <Compile Include="Messages\MessageBus.cs" />
+    <Compile Include="Messages\BaseMessage.cs" />
+    <Compile Include="Messages\IMessage.cs" />
+    <Compile Include="Messages\IObjectLifetimeRequest.cs" />
+    <Compile Include="Messages\ObjectCreated.cs" />
+    <Compile Include="Messages\ObjectDestroyed.cs" />
+    <Compile Include="Messages\ObjectDestructionRequest.cs" />
+    <Compile Include="Messages\SystemMessage.cs" />
+    <Compile Include="Messages\ObjectCreationRequest.cs" />
     <Compile Include="OrtsGlobals.cs" />
     <Compile Include="Primitives\Vector2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
