@@ -27,9 +27,13 @@ namespace RTS
             box2.material = black;
             Box box3 = new Box(Matrix.Translation(0, -3f, -1f), 8f, 2f, 2f);
             box3.material = black;
+
+            Circle test = new Circle(Matrix.Identity, 10f);
+
             shapes.Add(box1);
             shapes.Add(box2);
             shapes.Add(box3);
+            shapes.Add(test);
             //triangle = new Triangle(Matrix.Translation(-2f, -2.5f, 0f), Matrix.Translation(2f, -2.5f, 0f) , Matrix.Translation(0f, 2.5f, 3f));
             //triangle.Colour = Color.Red;
             //triangle.Filled = Color.Blue;

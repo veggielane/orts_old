@@ -30,7 +30,7 @@ namespace RTS
 
             Units.Add(new TestUnit());
 
-            Units[0].Position = Matrix.Translation(row++ * spacing, col * spacing, 0);
+            Units[0].Position = Matrix.RotationY((float)Math.PI/2)*Matrix.Translation(row++ * spacing, col * spacing, 0);
             Units.Add(new TestUnit());
             Units[1].Position = Matrix.Translation(row++ * spacing, col * spacing, 0);
             Units.Add(new TestUnit());

@@ -74,6 +74,41 @@ namespace RTS
         }
     }
 
+    public class Circle : IShape
+    {
+        protected Matrix position = Matrix.Identity;
+        public Matrix Position
+        {
+            get { return this.position; }
+            set { this.position = value; }
+        }
+        public CustomVertex.PositionColored[] vertices;
+        public Circle(Matrix Position,float Radius)
+        {
+            List<CustomVertex.PositionColored> vertlist = new List<CustomVertex.PositionColored>();
+
+            float smoothness = 0.05f;
+
+            for(float angle= 0.0f; angle<= (2.0f * Math.PI); angle += smoothness)
+            {
+                vertlist.Add(new CustomVertex.PositionColored(Position.M41 + (Radius* (float)Math.Sin(angle)), Position.M42 + (Radius * (float)Math.Cos(angle)), 0f, Color.Red.ToArgb()));
+            }
+            vertlist.Add(new CustomVertex.PositionColored(Position.M41, Position.M42 + Radius, 0f, Color.Black.ToArgb()));
+            vertices = vertlist.ToArray();
+        }
+        public void Render(Device device)
+        {
+            device.Transform.World = Matrix.Identity;
+        }
+        public void Render(Device device, Matrix Offset)
+        {
+
+            device.Transform.World = this.Position * Offset;
+            device.DrawUserPrimitives(PrimitiveType.LineStrip, vertices.Length-1, vertices);
+            //device.DrawUserPrimitives(PrimitiveType.LineList, 12, vertices);
+        }
+    }
+
     public class Box : IShape
     {
         protected Matrix position = Matrix.Identity;
