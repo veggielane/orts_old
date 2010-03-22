@@ -10,36 +10,42 @@ namespace RTS
 {
     public class TestUnit : Unit
     {
+        private Triangle triangle;
         public TestUnit()
         {
-            Triangle triangle = new Triangle(new Vector3(2f, 2f, 0f), new Vector3(7f, 2f, 0f), new Vector3(4.5f, 7f, 3f));
+            GenerateGeometry();
+        }
+        public override void GenerateGeometry()
+        {
+            shapes.Clear();
+            triangle = new Triangle(Matrix.Translation(-2f, -2.5f, 0f), Matrix.Translation(2f, -2.5f, 0f) , Matrix.Translation(0f, 2.5f, 3f));
             triangle.Colour = Color.Red;
-            triangle.Filled = Color.FromArgb(94, 169, 198);
+            triangle.Filled = Color.Blue;
             shapes.Add(triangle);
+            //shapes.Add(new Model("xwing.x"));
         }
     }
     public class Unit
     {
-        private Vector3 position;
-        private Matrix rotation;
-
-        public Vector3 Position
+        protected Matrix position;
+        public Matrix Position
         {
             get{return this.position;}
             set{this.position = value;}
         }
-        public Matrix Rotation {
-            get { return this.rotation; }
-            set { this.rotation = value; }
-        }
-
         protected List<IShape> shapes;
         public Unit()
         {
+            Position = Matrix.Translation(2f, 3f, 4f);
             shapes = new List<IShape>();
+        }
+        public virtual void GenerateGeometry()
+        {
+            Debug.WriteLine("You are doing it wrong");
         }
         public void Render(Device device)
         {
+            device.Transform.World = position;
             foreach (IShape Shape in shapes)
             {
                 Shape.Render(device);
@@ -99,15 +105,69 @@ namespace RTS
             vertices2[2].Position = vert3;
             this.Colour = this.colour;
         }
-
+        public Triangle(Matrix vert1, Matrix vert2, Matrix vert3):this(vert1.ToVector3(),vert2.ToVector3(),vert3.ToVector3())
+        {
+            
+        }
         public void Render(Device device)
         {
             if (!this.filled.IsEmpty) device.DrawUserPrimitives(PrimitiveType.TriangleList, 1, vertices1);
             device.DrawUserPrimitives(PrimitiveType.LineStrip, 3, vertices2);
+            
         }
     }
 
+    public class Model : IShape
+    {
+        public Vector3 Position { get; set; }
+        public Matrix Rotation { get; set; }
 
+        private Mesh mesh;
+        private Material[] meshmaterials;
+        private Texture[] meshtextures;
+        private ExtendedMaterial[] materialarray;
+        private Boolean Loaded = false;
+        private String Name;
+        public Model(String Name)
+        {
+            this.Name = Name;
+            //return 
+        }
+        public void Render(Device device)
+        {
+            if (!Loaded)
+            {
+                mesh = Mesh.FromFile(Name, MeshFlags.Managed, device, out materialarray);
+                if ((materialarray != null) && (materialarray.Length > 0))
+                {
+                    meshmaterials = new Material[materialarray.Length];
+                    meshtextures = new Texture[materialarray.Length];
+
+                    for (int i = 0; i < materialarray.Length; i++)
+                    {
+                        meshmaterials[i] = materialarray[i].Material3D;
+                        meshmaterials[i].Ambient = meshmaterials[i].Diffuse;
+
+                        if ((materialarray[i].TextureFilename != null) && (materialarray[i].TextureFilename != string.Empty))
+                        {
+                            meshtextures[i] = TextureLoader.FromFile(device, materialarray[i].TextureFilename);
+                        }
+                    }
+                }
+                mesh = mesh.Clone(mesh.Options.Value, CustomVertex.PositionNormalTextured.Format, device);
+                mesh.ComputeNormals();
+
+                Loaded = true;
+            }
+            for (int i = 0; i < meshmaterials.Length; i++)
+            {
+                device.Material = meshmaterials[i];
+                device.SetTexture(0, meshtextures[i]);
+                mesh.DrawSubset(i);
+            }
+            //device.DrawUserPrimitives(PrimitiveType.LineList, 12, vertices);
+        }
+    }
 
     public class Grid : IShape
     {
@@ -122,7 +182,6 @@ namespace RTS
 
             for (int i = 0; i < WidthNo +1; i++)
             {
-                Debug.WriteLine(i);
                 vertlist.Add(new CustomVertex.PositionColored(i*CellWidth,0f,0f,Color.Black.ToArgb()));
                 vertlist.Add(new CustomVertex.PositionColored(i * CellWidth, Height, 0f, Color.Black.ToArgb()));
             }
@@ -135,6 +194,7 @@ namespace RTS
         }
         public void Render(Device device)
         {
+            device.Transform.World = Matrix.Identity;
             device.DrawUserPrimitives(PrimitiveType.LineList, 12, vertices);
         }
     }
@@ -144,5 +204,11 @@ namespace RTS
         Matrix Rotation { get; set; }
         void Render(Device device);
     }
-
+    public static class Extensions
+    {
+        public static Vector3 ToVector3(this Matrix m)
+        {
+            return new Vector3(m.M41,m.M42,m.M43);
+        }
+    }
 }
