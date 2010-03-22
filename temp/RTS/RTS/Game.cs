@@ -24,8 +24,32 @@ namespace RTS
             InitializeComponent();
             InitializeDevice();
             Units = new List<Unit>();
+                    int row = 0;
+            int col = 1;
+            float spacing = 9f;
+
             Units.Add(new TestUnit());
-           // Units.Add(new TestUnit());
+
+            Units[0].Position = Matrix.Translation(row++ * spacing, col * spacing, 0);
+            Units.Add(new TestUnit());
+            Units[1].Position = Matrix.Translation(row++ * spacing, col * spacing, 0);
+            Units.Add(new TestUnit());
+            Units[2].Position = Matrix.Translation(row++ * spacing, col * spacing, 0);
+            Units.Add(new TestUnit());
+            Units[3].Position = Matrix.Translation(row++ * spacing, col * spacing, 0);
+            Units.Add(new TestUnit());
+            Units[4].Position = Matrix.Translation(row++ * spacing, col * spacing, 0);
+            Units.Add(new TestUnit());
+            Units[5].Position = Matrix.Translation(row++ * spacing, col * spacing, 0);
+            Units.Add(new TestUnit());
+            Units[6].Position = Matrix.Translation(row++ * spacing, col * spacing, 0);
+            Units.Add(new TestUnit());
+            Units[7].Position = Matrix.Translation(row++ * spacing, col * spacing, 0);
+
+
+
+
+
             grid = new Grid(10f,10f,5,5);
          }
 
@@ -39,6 +63,9 @@ namespace RTS
                 flags = CreateFlags.SoftwareVertexProcessing;
             PresentParameters present_params = new PresentParameters();
             present_params.Windowed = true;
+            present_params.AutoDepthStencilFormat = DepthFormat.D16;
+            present_params.EnableAutoDepthStencil = true;
+            //present_params.AutoDepthStencilFormat = DepthFormat.D16;
             present_params.SwapEffect = SwapEffect.Discard;
             device = new Device(0, DeviceType.Hardware, this, flags, present_params);
             device.DeviceReset += new System.EventHandler(this.OnResetDevice);
@@ -49,8 +76,9 @@ namespace RTS
         {
             device.Transform.Projection = Matrix.PerspectiveFovLH((float)Math.PI / 4, this.Width / this.Height, 1f, 50f);
             device.Transform.View = Matrix.LookAtLH(new Vector3(0, 0, 30), new Vector3(0, 0, 0), new Vector3(0, 1, 0));
-            device.RenderState.Lighting = false;
-            device.RenderState.CullMode = Cull.None;//Should not be set
+            device.RenderState.CullMode = Cull.CounterClockwise;//Should not be set
+            device.RenderState.Ambient = Color.White;
+            device.RenderState.Lighting = true;
         }
         private void Game_Paint(object sender, PaintEventArgs e)
         {
@@ -87,11 +115,11 @@ namespace RTS
 
             ptLastMousePosit = ptCurrentMousePosit;
         }
-        private float test=5;
+        private float test=1;
         private float scaling = 0.05f;
         public void Render()
         {
-            device.Clear(ClearFlags.Target, Color.Aquamarine.ToArgb(), 1.0f, 0);
+            device.Clear(ClearFlags.Target|ClearFlags.ZBuffer, Color.WhiteSmoke.ToArgb(), 1.0f, 0);
             device.BeginScene();
             device.VertexFormat = CustomVertex.PositionColored.Format;
             device.Transform.View = Matrix.Scaling(scaling, scaling, scaling) * Matrix.RotationYawPitchRoll(Geometry.DegreeToRadian(spinX), Geometry.DegreeToRadian(spinY), 0.0f) * Matrix.Translation(0.0f, 0.0f, 5.0f);
@@ -102,9 +130,14 @@ namespace RTS
             }
             device.EndScene();
             device.Present();
-            Units[0].Position = Matrix.RotationZ(Geometry.DegreeToRadian(test)) * Matrix.Translation(0f, 0f, 0f);
+            Units[0].Position = Matrix.RotationZ(Geometry.DegreeToRadian(test)) * Units[0].Position;
+            Units[1].Position = Matrix.RotationZ(Geometry.DegreeToRadian(-test)) * Units[1].Position;
+            Units[2].Position = Matrix.RotationZ(Geometry.DegreeToRadian(test*2)) * Units[2].Position;
+            Units[3].Position = Matrix.RotationZ(Geometry.DegreeToRadian(-test)) * Units[3].Position;
+            Units[4].Position = Matrix.RotationZ(Geometry.DegreeToRadian(test)) * Units[4].Position;
+            Units[5].Position = Matrix.RotationZ(Geometry.DegreeToRadian(-test)) * Units[5].Position;
             //Units[1].Position = Matrix.RotationZ(Geometry.DegreeToRadian(-test)) * Matrix.Translation(0f, 5f, 0f) * Matrix.RotationZ(Geometry.DegreeToRadian(-test));
-            test = test + 1f;
+            //test = test + 1f;
             //device.Transform.World = Matrix.RotationZ(Geometry.DegreeToRadian(test/2));
             //Matrix.Translation(0.005f, 0.005f, 0.005f)
         }

@@ -10,7 +10,8 @@ namespace RTS
 {
     public class TestUnit : Unit
     {
-        private Triangle triangle;
+        //private Triangle triangle;
+
         public TestUnit()
         {
             GenerateGeometry();
@@ -18,10 +19,21 @@ namespace RTS
         public override void GenerateGeometry()
         {
             shapes.Clear();
-            triangle = new Triangle(Matrix.Translation(-2f, -2.5f, 0f), Matrix.Translation(2f, -2.5f, 0f) , Matrix.Translation(0f, 2.5f, 3f));
-            triangle.Colour = Color.Red;
-            triangle.Filled = Color.Blue;
-            shapes.Add(triangle);
+            Box box1 = new Box(Matrix.Translation(0, 0, -2f), 6f, 4f, 4f);
+
+            Box box2 = new Box(Matrix.Translation(0, 3f, -1f), 8f, 2f, 2f);
+            Material black = new Material();
+            black.Ambient = Color.Black;
+            box2.material = black;
+            Box box3 = new Box(Matrix.Translation(0, -3f, -1f), 8f, 2f, 2f);
+            box3.material = black;
+            shapes.Add(box1);
+            shapes.Add(box2);
+            shapes.Add(box3);
+            //triangle = new Triangle(Matrix.Translation(-2f, -2.5f, 0f), Matrix.Translation(2f, -2.5f, 0f) , Matrix.Translation(0f, 2.5f, 3f));
+            //triangle.Colour = Color.Red;
+            //triangle.Filled = Color.Blue;
+            //shapes.Add(triangle);
             //shapes.Add(new Model("xwing.x"));
         }
     }
@@ -45,165 +57,15 @@ namespace RTS
         }
         public void Render(Device device)
         {
-            device.Transform.World = position;
             foreach (IShape Shape in shapes)
             {
-                Shape.Render(device);
+                Shape.Render(device, position);
             }
         }
     }
 
-    public class Triangle : IShape
-    {
-        public Vector3 Position { get; set; }
-        public Matrix Rotation { get; set; }
-        protected Color colour = Color.Red;
-        protected Color filled;
-        public CustomVertex.PositionColored[] vertices1;
-        public CustomVertex.PositionColored[] vertices2;
-        public Color Colour
-        {
-            get
-            {
-                return this.colour;
-            }
-            set
-            {
-                this.colour = value;
-                vertices2[0].Color = this.colour.ToArgb();
-                vertices2[1].Color = this.colour.ToArgb();
-                vertices2[2].Color = this.colour.ToArgb();
-                vertices2[3].Color = this.colour.ToArgb();
-            }
-        }
-        public Color Filled
-        {
-            get
-            {
-                return this.filled;
-            }
-            set
-            {
-                this.filled = value;
-                vertices1 = new CustomVertex.PositionColored[3];
-                vertices1[0].Position = vertices2[0].Position;
-                vertices1[1].Position = vertices2[1].Position;
-                vertices1[2].Position = vertices2[2].Position;
-                vertices1[0].Color = this.filled.ToArgb();
-                vertices1[1].Color = this.filled.ToArgb();
-                vertices1[2].Color = this.filled.ToArgb();
 
-            }
-        }
 
-        public Triangle(Vector3 vert1, Vector3 vert2, Vector3 vert3)
-        {
-
-            vertices2 = new CustomVertex.PositionColored[4];
-            vertices2[0].Position = vertices2[3].Position = vert1;
-            vertices2[1].Position = vert2;
-            vertices2[2].Position = vert3;
-            this.Colour = this.colour;
-        }
-        public Triangle(Matrix vert1, Matrix vert2, Matrix vert3):this(vert1.ToVector3(),vert2.ToVector3(),vert3.ToVector3())
-        {
-            
-        }
-        public void Render(Device device)
-        {
-            if (!this.filled.IsEmpty) device.DrawUserPrimitives(PrimitiveType.TriangleList, 1, vertices1);
-            device.DrawUserPrimitives(PrimitiveType.LineStrip, 3, vertices2);
-            
-        }
-    }
-
-    public class Model : IShape
-    {
-        public Vector3 Position { get; set; }
-        public Matrix Rotation { get; set; }
-
-        private Mesh mesh;
-        private Material[] meshmaterials;
-        private Texture[] meshtextures;
-        private ExtendedMaterial[] materialarray;
-        private Boolean Loaded = false;
-        private String Name;
-        public Model(String Name)
-        {
-            this.Name = Name;
-            //return 
-        }
-        public void Render(Device device)
-        {
-            if (!Loaded)
-            {
-                mesh = Mesh.FromFile(Name, MeshFlags.Managed, device, out materialarray);
-                if ((materialarray != null) && (materialarray.Length > 0))
-                {
-                    meshmaterials = new Material[materialarray.Length];
-                    meshtextures = new Texture[materialarray.Length];
-
-                    for (int i = 0; i < materialarray.Length; i++)
-                    {
-                        meshmaterials[i] = materialarray[i].Material3D;
-                        meshmaterials[i].Ambient = meshmaterials[i].Diffuse;
-
-                        if ((materialarray[i].TextureFilename != null) && (materialarray[i].TextureFilename != string.Empty))
-                        {
-                            meshtextures[i] = TextureLoader.FromFile(device, materialarray[i].TextureFilename);
-                        }
-                    }
-                }
-                mesh = mesh.Clone(mesh.Options.Value, CustomVertex.PositionNormalTextured.Format, device);
-                mesh.ComputeNormals();
-
-                Loaded = true;
-            }
-            for (int i = 0; i < meshmaterials.Length; i++)
-            {
-                device.Material = meshmaterials[i];
-                device.SetTexture(0, meshtextures[i]);
-                mesh.DrawSubset(i);
-            }
-            //device.DrawUserPrimitives(PrimitiveType.LineList, 12, vertices);
-        }
-    }
-
-    public class Grid : IShape
-    {
-        public Vector3 Position { get; set; }
-        public Matrix Rotation { get; set; }
-        public CustomVertex.PositionColored[] vertices;
-        public Grid(float Width, float Height, int WidthNo, int HeightNo)
-        {
-            List<CustomVertex.PositionColored> vertlist = new List<CustomVertex.PositionColored>();
-            float CellWidth = Width / WidthNo;
-            float CellHeight = Height / HeightNo;
-
-            for (int i = 0; i < WidthNo +1; i++)
-            {
-                vertlist.Add(new CustomVertex.PositionColored(i*CellWidth,0f,0f,Color.Black.ToArgb()));
-                vertlist.Add(new CustomVertex.PositionColored(i * CellWidth, Height, 0f, Color.Black.ToArgb()));
-            }
-            for (int i = 0; i < HeightNo + 1; i++)
-            {
-                vertlist.Add(new CustomVertex.PositionColored(0f, i * CellHeight, 0f, Color.Black.ToArgb()));
-                vertlist.Add(new CustomVertex.PositionColored(Width, i * CellHeight, 0f, Color.Black.ToArgb()));
-            }
-            vertices = vertlist.ToArray();
-        }
-        public void Render(Device device)
-        {
-            device.Transform.World = Matrix.Identity;
-            device.DrawUserPrimitives(PrimitiveType.LineList, 12, vertices);
-        }
-    }
-    public interface IShape
-    {
-        Vector3 Position { get; set; }
-        Matrix Rotation { get; set; }
-        void Render(Device device);
-    }
     public static class Extensions
     {
         public static Vector3 ToVector3(this Matrix m)
