@@ -8,6 +8,6 @@ namespace Orts.Core.Messages
 {
     public interface IMessage
     {
-        IGameTime TimeSent { get; }
+        IGameTime TimeSent { get; set; }
     }
 }

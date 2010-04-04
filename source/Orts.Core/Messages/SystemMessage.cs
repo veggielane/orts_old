@@ -10,8 +10,7 @@ namespace Orts.Core.Messages
     {
         public string Message { get; private set; }
 
-        public SystemMessage(IGameTime timeSent, string message)
-            :base(timeSent)
+        public SystemMessage(string message)
         {
             Message = message;
         }

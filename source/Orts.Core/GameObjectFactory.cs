@@ -35,7 +35,7 @@ namespace Orts.Core
             if (request.GameObject != null)
             {
                 GameObjects.Remove(request.GameObject);
-                Bus.Add(new ObjectDestroyed(request.TimeSent, request.GameObject));
+                Bus.Add(new ObjectDestroyed(request.GameObject));
             }
         }
     }

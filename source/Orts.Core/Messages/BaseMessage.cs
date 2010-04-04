@@ -8,11 +8,6 @@ namespace Orts.Core.Messages
 {
     public abstract class BaseMessage:IMessage
     {
-        public IGameTime TimeSent { get; private set; }
-
-        public BaseMessage(IGameTime timeSent)
-        {
-            TimeSent = timeSent;
-        }
+        public IGameTime TimeSent { get; set; }
     }
 }

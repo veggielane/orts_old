@@ -9,7 +9,7 @@ namespace Orts.Core.Messages
 {
     public class MessageBus : Observable<IMessage>
     {
-
+        public GameEngine Engine { get; private set; }
         public IBuffer<IMessage> PendingMessages { get; private set; }
         public BusFilters Filters { get; private set; }
 
@@ -20,8 +20,14 @@ namespace Orts.Core.Messages
             Filters.Initialise(this);
         }
 
+        public void Initialise(GameEngine engine)
+        {
+            Engine = engine;
+        }
+
         public void Add(IMessage message)
         {
+            message.TimeSent = Engine.CurrentTickTime;
             PendingMessages.Add(message);
         }
 

@@ -11,8 +11,7 @@ namespace Orts.Core.Messages
     {
         public IGameObject GameObject { get; private set; }
 
-        public ObjectCreated(IGameTime timeSent, IGameObject gameObject)
-        :base(timeSent)
+        public ObjectCreated(IGameObject gameObject)
         {
             GameObject = gameObject;
         }

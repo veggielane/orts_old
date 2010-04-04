@@ -12,8 +12,7 @@ namespace Orts.Core.Messages
     {
         public IGameObject GameObject { get; private set; }
 
-        public ObjectDestructionRequest(IGameTime timeSent, IGameObject gameObject)
-        :base(timeSent)
+        public ObjectDestructionRequest(IGameObject gameObject)
         {
             GameObject = gameObject;
         }

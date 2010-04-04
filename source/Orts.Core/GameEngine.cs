@@ -6,6 +6,7 @@ using Orts.Core.Timing;
 using Orts.Core.GameObjects;
 using System.Threading.Tasks;
 using Orts.Core.Messages;
+using Orts.Core.Players;
 
 namespace Orts.Core
 {
@@ -15,6 +16,8 @@ namespace Orts.Core
         public MessageBus Bus { get; private set; }
         public GameObjectFactory ObjectFactory { get; private set; }
         public bool IsRunning { get; private set; }
+        public TickTime CurrentTickTime { get; private set; }
+        public List<PlayerController> Players { get; set; }
 
         public IEnumerable<IMapGO> MapItems()
         {
@@ -27,11 +30,15 @@ namespace Orts.Core
             Bus = bus;
             ObjectFactory = objectFactory;
             IsRunning = false;
+            Players = new List<PlayerController>();
             Initialise();
         }
 
         protected virtual void Initialise()
         {
+            Bus.Initialise(this);
+
+            Timer.Subscribe(t => CurrentTickTime = t);
             Timer.Subscribe(t => this.Update(t));
             Timer.SubSample(5).Subscribe(t => Bus.SendAll());
         }
@@ -48,10 +55,10 @@ namespace Orts.Core
         {
             if (!IsRunning)
             {
-                Bus.Add(new SystemMessage(Timer.LastTickTime, "Engine starting."));
+                Bus.Add(new SystemMessage("Engine starting."));
                 Timer.Start();
                 IsRunning = true;
-                Bus.Add(new SystemMessage(Timer.LastTickTime, "Engine started."));
+                Bus.Add(new SystemMessage("Engine started."));
             }
         }
 
@@ -59,10 +66,10 @@ namespace Orts.Core
         {
             if (IsRunning)
             {
-                Bus.Add(new SystemMessage(Timer.LastTickTime, "Engine stopping."));
+                Bus.Add(new SystemMessage("Engine stopping."));
                 IsRunning = false;
                 Timer.Stop();
-                Bus.Add(new SystemMessage(Timer.LastTickTime, "Engine stopped."));
+                Bus.Add(new SystemMessage("Engine stopped."));
             }
         }
 

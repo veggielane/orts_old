@@ -20,11 +20,11 @@ namespace TestGame
 
             if (request.ObjectType == typeof(TestTank))
             {
-                var item = new TestTank(this.Bus) { Velocity = new Vector2(30, 30) };
+                var item = new TestTank(this.Bus) { Destination = new Vector2(200, 30) };
 
                 this.GameObjects.Add(item);
 
-                Bus.Add(new ObjectCreated(request.TimeSent, item));
+                Bus.Add(new ObjectCreated(item));
             }
             base.CreateGameObject(request);
         }

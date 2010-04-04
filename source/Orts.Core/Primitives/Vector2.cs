@@ -61,6 +61,39 @@ namespace Orts.Core.Primitives
             return new Vector2(X * v, Y * v);
         }
 
+        public static bool operator ==(Vector2 v1, Vector2 v2)
+        {
+            if (Object.ReferenceEquals(v1, null) || Object.ReferenceEquals(v2,null))
+            {
+                return Object.ReferenceEquals(v1,v2);
+            }
+
+            return v1.Equals(v2);
+        }
+
+        public static bool operator !=(Vector2 v1, Vector2 v2)
+        {
+            return !(v1 == v2);
+        }
+
+        public override int GetHashCode()
+        {
+            return X.GetHashCode() ^ Y.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Vector2)
+            {
+                var v = obj as Vector2;
+                if (v != null)
+                {
+                    return (this.X.Equals(v.X) && this.Y.Equals(v.Y));
+                }
+            }
+            return base.Equals(obj);
+        }
+
         public override string ToString()
         {
             return "{{X:{0},Y:{1}}}".fmt(X, Y);

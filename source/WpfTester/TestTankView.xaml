@@ -6,6 +6,7 @@
              mc:Ignorable="d"
              Canvas.Left="{Binding Position.X}"
              Canvas.Top="{Binding Position.Y}"
+             Visibility="{Binding Visible}"
              >
     
     <Ellipse x:Name="Shape" Height="20" Width="20">

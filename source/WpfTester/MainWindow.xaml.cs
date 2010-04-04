@@ -21,6 +21,9 @@ using Ninject;
 using Ninject.Modules;
 using Orts.Core.Messages;
 using TestGame;
+using Orts.Core.Players;
+using System.Concurrency;
+using System.Threading.Tasks;
 
 namespace WpfTester
 {
@@ -31,21 +34,29 @@ namespace WpfTester
     {
         public GameEngine Engine { get; set; }
         public Dictionary<IGameObject, TestTankView> Views { get; set; }
+        public PlayerController Player { get; set; }
+
+        public IObservable<Point> LeftSingleClick { get; set; }
+        public IObservable<Point> RightSingleClick { get; set; }
+        public IObservable<Point> LeftDoubleClick { get; set; }
+        public IObservable<Key> KeyPress { get; set; }
+
+        public IObservable<Rect> LeftDrag { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
 
+            SetupInputObs();
 
-            var kernel = new StandardKernel();
+            var kernel = new StandardKernel(new TestGameModule());
 
-            kernel.Bind<GameEngine>().ToSelf();
-            kernel.Bind<ObservableTimer>().To<AsyncObservableTimer>();
-            kernel.Bind<MessageBus>().ToSelf().InSingletonScope();
             kernel.Bind<GameObjectFactory>().To<TestGameObjectFactory>().InSingletonScope();
-            kernel.Bind<BusFilters>().ToSelf();
             kernel.Bind<Dictionary<IGameObject, TestTankView>>().ToConstant(new Dictionary<IGameObject, TestTankView>());
             kernel.Bind<Canvas>().ToConstant(this.Panel);
+            kernel.Bind<PlayerController>().ToSelf().InSingletonScope();
+
+            Player = kernel.Get<PlayerController>();
 
             Views = kernel.Get<Dictionary<IGameObject, TestTankView>>();
             Engine = kernel.Get<GameEngine>();
@@ -57,33 +68,123 @@ namespace WpfTester
             Engine.Start();
         }
 
+        private void SetupInputObs()
+        {
+
+            var MouseLeftButtonDownObs = Observable.FromEvent((EventHandler<MouseButtonEventArgs> ev) => new MouseButtonEventHandler(ev),
+                ev => this.MouseLeftButtonDown += ev,
+                ev => this.MouseLeftButtonDown -= ev).Select(e => e.EventArgs.GetPosition(this)); ;
+
+            var MouseLeftButtonUpObs = Observable.FromEvent((EventHandler<MouseButtonEventArgs> ev) => new MouseButtonEventHandler(ev),
+                ev => this.MouseLeftButtonUp += ev,
+                ev => this.MouseLeftButtonUp -= ev).Select(e => e.EventArgs.GetPosition(this)); ;
+
+            var MouseRightButtonDownObs = Observable.FromEvent((EventHandler<MouseButtonEventArgs> ev) => new MouseButtonEventHandler(ev),
+                ev => this.MouseRightButtonDown += ev,
+                ev => this.MouseRightButtonDown -= ev).Select(e => e.EventArgs.GetPosition(this)); ;
+
+            var MouseRightButtonUpObs = Observable.FromEvent((EventHandler<MouseButtonEventArgs> ev) => new MouseButtonEventHandler(ev),
+                ev => this.MouseRightButtonUp += ev,
+                ev => this.MouseRightButtonUp -= ev).Select(e => e.EventArgs.GetPosition(this)); ;
+
+            LeftDoubleClick = Observable.FromEvent((EventHandler<MouseButtonEventArgs> ev) => new MouseButtonEventHandler(ev),
+                ev => this.MouseDoubleClick += ev,
+                ev => this.MouseDoubleClick -= ev).Where(e => e.EventArgs.ChangedButton == MouseButton.Left).Select(e => e.EventArgs.GetPosition(this));
+
+            LeftSingleClick = MouseLeftButtonDownObs.Zip(MouseLeftButtonUpObs, (md, mu) => Tuple.Create(md,mu))
+                .Where(t => (t.Item2 - t.Item1).Length <= 5).Select(t => t.Item1);
+
+            RightSingleClick = MouseRightButtonDownObs.Zip(MouseRightButtonUpObs, (md, mu) => Tuple.Create(md, mu))
+                .Where(t => (t.Item2 - t.Item1).Length <= 5).Select(t => t.Item1);
+
+            LeftDrag = MouseLeftButtonDownObs.Zip(MouseLeftButtonUpObs, (md, mu) => Tuple.Create(md, mu))
+                .Where(t => (t.Item2 - t.Item1).Length > 5).Select(t => new Rect(t.Item1, t.Item2));
+
+            KeyPress = Observable.FromEvent((EventHandler<KeyEventArgs> ev) => new KeyEventHandler(ev),
+                ev => this.KeyDown += ev,
+                ev => this.KeyDown -= ev).Select(e => e.EventArgs.Key);
+        }
 
         private void Setup(GameEngine engine)
         {
 
-            Observable.FromEvent((EventHandler<MouseButtonEventArgs> ev) => new MouseButtonEventHandler(ev),
-                ev => this.MouseDoubleClick += ev,
-                ev => this.MouseDoubleClick -= ev).Where(e => e.EventArgs.ChangedButton == MouseButton.Left).Subscribe(e => 
-                    {
-                        if (engine.IsRunning)
-                            engine.Stop();
-                        else
-                            engine.Start();
-                    });
+            engine.Players.Add(Player);
 
-            Observable.FromEvent((EventHandler<KeyEventArgs> ev) => new KeyEventHandler(ev),
-                ev => this.KeyDown += ev,
-                ev => this.KeyDown -= ev).Where(e => e.EventArgs.Key == Key.C).Subscribe(e =>
+            //LeftDoubleClick.Subscribe(e => 
+            //        {
+            //            if (engine.IsRunning)
+            //                engine.Stop();
+            //            else
+            //                engine.Start();
+            //        });
+
+            LeftDrag.Subscribe(r =>
                 {
-                    Debug.WriteLine("C pressed.");
-                    engine.Bus.Add(new ObjectCreationRequest(engine.Timer.LastTickTime, typeof(TestTank)));
+                    foreach (var tank in Player.SelectedObjects.Objects.OfType<TestTank>())
+                    {
+                        var view = Views[tank];
+                        view.Model.Color = Colors.Blue;
+                    }
+
+                    var tanks = from t in Views
+                                where t.Value.Model.Position.IsInside(r)
+                                select t.Value.Model.Tank;
+
+                    Player.SelectedObjects = new GOGroup(tanks.Cast<IGameObject>().ToList());
+
+                    foreach (var tank in Player.SelectedObjects.Objects.OfType<TestTank>())
+                    {
+                        var view = Views[tank];
+                        view.Model.Color = Colors.Red;
+                    }
                 });
+
+            RightSingleClick.Subscribe(p =>
+            {
+                foreach (var tank in Player.SelectedObjects.Objects.OfType<TestTank>())
+                {
+                    var pos = p;
+
+                    tank.Destination = new Vector2(pos.X, pos.Y);
+                }
+
+            });
+
+            KeyPress.Where(k => k == Key.Escape).Subscribe(k =>
+            {
+                foreach (var tank in Player.SelectedObjects.Objects.OfType<TestTank>())
+                {
+                    var view = Views[tank];
+                    view.Model.Color = Colors.Blue;
+                }
+
+                Player.SelectedObjects = GOGroup.Empty;
+            });
+
+            KeyPress.Where(k => k == Key.C).Subscribe(k =>
+                {
+                    engine.Bus.Add(new ObjectCreationRequest(typeof(TestTank)));
+                });
+
+
+            KeyPress.Where(k => k == Key.D).Subscribe(k =>
+            {
+
+                foreach (var tank in Player.SelectedObjects.Objects.OfType<TestTank>())
+                {
+                    var view = Views[tank];
+                    view.Model.Destroy();
+                    view.Model.Color = Colors.Blue;
+                }
+
+                Player.SelectedObjects = GOGroup.Empty;
+            });
 
             engine.Timer.Subscribe(t =>
             {
                 foreach (var view in Views.Values)
                 {
-                    view.Model.NotifyPropertyChanged();
+                    view.Model.Update();
                 }
             });
 
@@ -91,7 +192,10 @@ namespace WpfTester
             engine.Bus.Filters.ObjectLifeTimeNotifications.Subscribe(m => SysMessage.Dispatcher.Invoke(new Action(() => SysMessage.Content += m.ToString() + "\n")));
 
 
-            engine.Bus.Add(new ObjectCreationRequest(engine.Timer.LastTickTime,typeof(TestTank)));
+
+
+
+            engine.Bus.Add(new ObjectCreationRequest(typeof(TestTank)));
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
@@ -101,95 +205,5 @@ namespace WpfTester
         }
     }
 
-    public class TestTankViewModel : INotifyPropertyChanged
-    {
-        public Color Color { get; set; }
-        public TestTank Tank { get; private set; }
 
-        public TestTankViewModel(TestTank tank)
-        {
-            Tank = tank;
-            Color = Colors.Blue;
-        }
-
-        public void NotifyPropertyChanged()
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs("Position"));
-                PropertyChanged(this, new PropertyChangedEventArgs("Velocity"));
-            }
-        }
-
-        public Vector2 Position
-        {
-            get { return Tank.Position; }
-        }
-
-        public Vector2 Velocity
-        {
-            get { return Tank.Velocity; }
-        }
-
-        #region INotifyPropertyChanged Members
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        #endregion
-
-        internal void Destroy()
-        {
-            Tank.Bus.Add(new ObjectDestructionRequest(null, Tank));
-        }
-    }
-
-    public class TestGameViewFactory:IHasMessageBus
-    {
-        public GameEngine Engine { get; private set; }
-        public MessageBus  Bus { get; private set; }
-        public Canvas Panel { get; private set; }
-        public Dictionary<IGameObject,TestTankView> Views { get; private set; }
-
-        public TestGameViewFactory(GameEngine engine, MessageBus bus, Canvas panel, Dictionary<IGameObject, TestTankView> views)
-        {
-            Engine = engine;
-            Bus = bus;
-            this.Panel = panel;
-            Views = views;
-
-            Bus.Filters.ObjectLifeTimeNotifications.OfType<ObjectCreated>().Subscribe(m => CreateView(m));
-            Bus.Filters.ObjectLifeTimeNotifications.OfType<ObjectDestroyed>().Subscribe(m => DestroyView(m));
-        }
-        
-        public void CreateView(ObjectCreated notification)
-        {
-            Panel.Dispatcher.Invoke(new Action(() => 
-                {
-                    if (notification.GameObject is TestTank)
-                    {
-                        var model = new TestTankViewModel((TestTank)notification.GameObject);
-
-                        TestTankView view = new TestTankView(model);
-
-                        Panel.Children.Add(view);
-
-                        Views.Add(notification.GameObject, view);
-                    }
-                }));
-        }
-
-        public void DestroyView(ObjectDestroyed notification)
-        {
-            Panel.Dispatcher.Invoke(new Action(() =>
-                {
-                    if(Views.ContainsKey(notification.GameObject))
-                    {
-                        var view = Views[notification.GameObject];
-                        Panel.Children.Remove(view);
-                        Views.Remove(notification.GameObject);
-                    }
-                }));
-        }
-
-    }
 }

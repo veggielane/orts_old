@@ -11,6 +11,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.ComponentModel;
+using TestGame;
+using Orts.Core.Primitives;
+using Orts.Core.Messages;
 
 namespace WpfTester
 {
@@ -20,6 +24,8 @@ namespace WpfTester
     public partial class TestTankView : UserControl
     {
         public TestTankViewModel Model { get; set; }
+        public IObservable<Point> LeftSingleClick { get; set; }
+        public IObservable<Point> RightSingleClick { get; set; }
 
         public TestTankView()
         {
@@ -31,11 +37,87 @@ namespace WpfTester
         {
             this.Model = model;
             this.DataContext = model;
+
+            SetupMouseObs();  
         }
 
-        protected override void OnMouseDown(MouseButtonEventArgs e)
+
+        private void SetupMouseObs()
         {
-            Model.Destroy();
+
+            var MouseLeftButtonDownObs = Observable.FromEvent((EventHandler<MouseButtonEventArgs> ev) => new MouseButtonEventHandler(ev),
+                ev => this.MouseLeftButtonDown += ev,
+                ev => this.MouseLeftButtonDown -= ev).Select(e => e.EventArgs.GetPosition(this)); ;
+
+            var MouseLeftButtonUpObs = Observable.FromEvent((EventHandler<MouseButtonEventArgs> ev) => new MouseButtonEventHandler(ev),
+                ev => this.MouseLeftButtonUp += ev,
+                ev => this.MouseLeftButtonUp -= ev).Select(e => e.EventArgs.GetPosition(this)); ;
+
+            var MouseRightButtonDownObs = Observable.FromEvent((EventHandler<MouseButtonEventArgs> ev) => new MouseButtonEventHandler(ev),
+                ev => this.MouseRightButtonDown += ev,
+                ev => this.MouseRightButtonDown -= ev).Select(e => e.EventArgs.GetPosition(this)); ;
+
+            var MouseRightButtonUpObs = Observable.FromEvent((EventHandler<MouseButtonEventArgs> ev) => new MouseButtonEventHandler(ev),
+                ev => this.MouseRightButtonUp += ev,
+                ev => this.MouseRightButtonUp -= ev).Select(e => e.EventArgs.GetPosition(this)); ;
+
+            LeftSingleClick = MouseLeftButtonDownObs.Zip(MouseLeftButtonUpObs, (md, mu) => Tuple.Create(md, mu))
+                .Where(t => (t.Item2 - t.Item1).Length <= 5).Select(t => t.Item1);
+
+            RightSingleClick = MouseRightButtonDownObs.Zip(MouseRightButtonUpObs, (md, mu) => Tuple.Create(md, mu))
+                .Where(t => (t.Item2 - t.Item1).Length <= 5).Select(t => t.Item1);
+        }
+    }
+
+
+    public class TestTankViewModel : INotifyPropertyChanged
+    {
+        public Color Color { get; set; }
+        public TestTank Tank { get; private set; }
+        public Visibility Visible { get; set; }
+
+        public TestTankViewModel(TestTank tank)
+        {
+            Tank = tank;
+            Color = Colors.Blue;
+            Visible = Visibility.Visible;
+        }
+
+        public void Update()
+        {
+            if (Tank.Visible)
+                Visible = Visibility.Visible;
+            else
+                Visible = Visibility.Hidden;
+
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs("Position"));
+                PropertyChanged(this, new PropertyChangedEventArgs("Velocity"));
+                PropertyChanged(this, new PropertyChangedEventArgs("Visible"));
+                PropertyChanged(this, new PropertyChangedEventArgs("Color"));
+            }
+        }
+
+        public Vector2 Position
+        {
+            get { return Tank.Position; }
+        }
+
+        public Vector2 Velocity
+        {
+            get { return Tank.Velocity; }
+        }
+
+        #region INotifyPropertyChanged Members
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        #endregion
+
+        internal void Destroy()
+        {
+            Tank.Bus.Add(new ObjectDestructionRequest(Tank));
         }
     }
 }

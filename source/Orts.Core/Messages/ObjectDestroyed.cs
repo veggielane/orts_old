@@ -11,8 +11,7 @@ namespace Orts.Core.Messages
     {
         public IGameObject GameObject { get; private set; }
 
-        public ObjectDestroyed(IGameTime timeSent, IGameObject gameObject)
-            : base(timeSent)
+        public ObjectDestroyed(IGameObject gameObject)
         {
             GameObject = gameObject;
         }

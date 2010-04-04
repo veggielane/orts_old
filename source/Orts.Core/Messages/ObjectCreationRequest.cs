@@ -11,8 +11,7 @@ namespace Orts.Core.Messages
 
         public Type ObjectType { get; private set; }
 
-        public ObjectCreationRequest(IGameTime timeSent, Type objectType)
-            : base(timeSent)
+        public ObjectCreationRequest(Type objectType)
         {
             ObjectType = objectType;
         }
