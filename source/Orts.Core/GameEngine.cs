@@ -40,7 +40,16 @@ namespace Orts.Core
 
             Timer.Subscribe(t => CurrentTickTime = t);
             Timer.Subscribe(t => this.Update(t));
-            Timer.SubSample(5).Subscribe(t => Bus.SendAll());
+            Timer.SubSample(5).Subscribe(t =>
+                {
+                    Bus.SendAll();
+                    foreach (var item in ObjectFactory.GameObjects.OfType<IMapGO>())
+                    {
+                        item.Brain.Think(t);
+                    }
+
+                    ObjectFactory.ProcessRequests();
+                });
         }
 
         public void Update(TickTime tickTime)

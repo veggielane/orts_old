@@ -19,10 +19,12 @@ namespace Orts.Core.Messages
             SystemMessages = Bus.OfType<SystemMessage>().AsObservable();
             ObjectLifeTimeRequests = Bus.OfType<IObjectLifetimeRequest>().AsObservable();
             ObjectLifeTimeNotifications = Bus.OfType<IObjectLifetimeNotification>().AsObservable();
+            ObjectPositions = Bus.OfType<ObjectPosition>().AsObservable();
         }
 
         public IObservable<SystemMessage> SystemMessages { get; private set; }
         public IObservable<IObjectLifetimeRequest> ObjectLifeTimeRequests { get; private set; }
         public IObservable<IObjectLifetimeNotification> ObjectLifeTimeNotifications { get; private set; }
+        public IObservable<ObjectPosition> ObjectPositions { get; private set; }
     }
 }

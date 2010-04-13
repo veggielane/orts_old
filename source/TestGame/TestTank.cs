@@ -7,37 +7,40 @@ using Orts.Core.GameObjects;
 using Orts.Core.Messages;
 using Orts.Core.Primitives;
 using Orts.Core.Timing;
+using Orts.Core.Brain;
 
 namespace TestGame
 {
     public class TestTank : IMapGO
     {
         public MessageBus Bus { get; private set; }
+        public IBrain Brain { get; private set; }
         public Vector2 Position { get; set; }
         public Vector2 Velocity { get; set; }
-        public Vector2 Destination { get; set; }
         public double MaxVelocity { get; set; }
         public bool Visible { get; private set; }
 
-        public TestTank(MessageBus bus)
+        public TestTank(MessageBus bus, IBrain brain)
         {
             Bus = bus;
+            Brain = brain;
+            Brain.Initialise(Bus, this);
+
             Position = new Vector2();
             Velocity = new Vector2();
             MaxVelocity = 60;
             Visible = true;
         }
 
-
         public void Update(TickTime tickTime)
         {
-            if (Destination == null)
+            if (Brain.Waypoint == null)
             {
                 Velocity = Vector2.Zero;
             }
             else
             {
-                var path = Destination.Subtract(Position);
+                var path = Brain.Waypoint.Subtract(Position);
 
                 if (path.Length >= MaxVelocity * tickTime.GameTimeDelta.TotalSeconds)
                 {
@@ -51,9 +54,8 @@ namespace TestGame
 
             Position = Position.Add(Velocity.Multiply(tickTime.GameTimeDelta.TotalSeconds));
 
-            if (Position == Destination)
+            if (Position == Brain.Waypoint)
             {
-                Destination = null;
                 //Visible = false;
                 //Bus.Add(new ObjectDestructionRequest(this));
             }

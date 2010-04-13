@@ -42,6 +42,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Brain\IBrain.cs" />
+    <Compile Include="Brain\SimpleBrain.cs" />
     <Compile Include="Collections\BasicBuffer.cs" />
     <Compile Include="Collections\IBuffer.cs" />
     <Compile Include="Collections\SafeCollection.cs" />
@@ -64,6 +66,7 @@
     <Compile Include="Messages\ObjectCreated.cs" />
     <Compile Include="Messages\ObjectDestroyed.cs" />
     <Compile Include="Messages\ObjectDestructionRequest.cs" />
+    <Compile Include="Messages\ObjectPosition.cs" />
     <Compile Include="Messages\SystemMessage.cs" />
     <Compile Include="Messages\ObjectCreationRequest.cs" />
     <Compile Include="OrtsGlobals.cs" />

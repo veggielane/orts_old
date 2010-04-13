@@ -10,7 +10,7 @@ namespace Orts.Core.Reactive
 
     public class Observable<T> : IObservable<T>, IDisposable
     {
-        private ICollection<IObserver<T>> _subscribers = new List<IObserver<T>>();
+        private ICollection<IObserver<T>> _subscribers = new SafeCollection<IObserver<T>>();
 
         public void OnNext(T value)
         {

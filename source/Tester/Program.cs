@@ -67,18 +67,6 @@ namespace Orts.Core
 
         private static void Setup(GameEngine engine)
         {
-
-            engine.Timer.Subscribe(t =>
-                {
-                    foreach (var item in engine.MapItems().OfType<TempItem>())
-                    {
-                        Console.WriteLine(item.ToString());
-                    }
-                });
-
-            engine.ObjectFactory.GameObjects.Add(new TempItem(engine.Bus) { Velocity = new Vector2(0, 0) });
-            engine.ObjectFactory.GameObjects.Add(new TempItem(engine.Bus) { Velocity = new Vector2(1, 1) });
-
         }
     }
 
@@ -94,30 +82,4 @@ namespace Orts.Core
     }
 
 
-    class TempItem : IMapGO
-    {
-        public MessageBus Bus { get; private set; }
-        public Vector2 Position { get; set; }
-        public Vector2 Velocity { get; set; }
-
-        public TempItem(MessageBus bus)
-        {
-            Bus = bus;
-            Position = new Vector2();
-            Velocity = new Vector2();
-        }
-
-
-        public void Update(TickTime tickTime)
-        {
-            Position = Position.Add(Velocity.Multiply(tickTime.GameTimeDelta.TotalSeconds));
-        }
-
-
-
-        public override string ToString()
-        {
-            return "TempItem - {{Pos:{0}}}".fmt(Position);
-        }
-    }
 }
