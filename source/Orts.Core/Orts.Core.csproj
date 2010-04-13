@@ -59,6 +59,7 @@
     <Compile Include="Messages\BusFilters.cs" />
     <Compile Include="Messages\IHasMessageBus.cs" />
     <Compile Include="Messages\IObjectLifetimeNotification.cs" />
+    <Compile Include="Messages\IUserCommand.cs" />
     <Compile Include="Messages\MessageBus.cs" />
     <Compile Include="Messages\BaseMessage.cs" />
     <Compile Include="Messages\IMessage.cs" />
@@ -69,6 +70,7 @@
     <Compile Include="Messages\ObjectPosition.cs" />
     <Compile Include="Messages\SystemMessage.cs" />
     <Compile Include="Messages\ObjectCreationRequest.cs" />
+    <Compile Include="Messages\UnitMoveRequest.cs" />
     <Compile Include="OrtsGlobals.cs" />
     <Compile Include="Players\PlayerController.cs" />
     <Compile Include="Primitives\Vector2.cs" />

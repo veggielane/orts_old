@@ -140,16 +140,17 @@ namespace WpfTester
                 });
 
             //TODO: movement;
-            //RightSingleClick.Subscribe(p =>
-            //{
-            //    foreach (var tank in Player.SelectedObjects.Objects.OfType<TestTank>())
-            //    {
-            //        var pos = p;
+            RightSingleClick.Subscribe(p =>
+            {
+                foreach (var tank in Player.SelectedObjects.Objects.OfType<TestTank>())
+                {
+                    var pos = p;
 
-            //        tank.Destination = new Vector2(pos.X, pos.Y);
-            //    }
+                    var moveCommand = new UnitMoveRequest(tank, p.ToVector2());
+                    engine.Bus.Add(moveCommand);
+                }
 
-            //});
+            });
 
             KeyPress.Where(k => k == Key.Escape).Subscribe(k =>
             {
