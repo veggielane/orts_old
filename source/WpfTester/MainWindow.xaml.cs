@@ -194,7 +194,7 @@ namespace WpfTester
             engine.Bus.Filters.ObjectLifeTimeNotifications.Subscribe(m => SysMessage.Dispatcher.Invoke(new Action(() => SysMessage.Content += m.ToString() + "\n")));
 
 
-
+            engine.Timer.Subscribe(t => Debug.WriteLine(t.RealTimeDelta));
 
 
             engine.Bus.Add(new ObjectCreationRequest(typeof(TestTank)));

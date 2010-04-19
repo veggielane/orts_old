@@ -51,14 +51,14 @@ namespace Orts.Core.Primitives
             return new Vector2(X - v.X, Y - v.Y);
         }
 
-        public Vector2 Divide(double v)
+        public Vector2 Divide(double d)
         {
-            return new Vector2(X/v, Y/v);
+            return new Vector2(X/d, Y/d);
         }
 
-        public Vector2 Multiply(double v)
+        public Vector2 Multiply(double d)
         {
-            return new Vector2(X * v, Y * v);
+            return new Vector2(X * d, Y * d);
         }
 
         public static bool operator ==(Vector2 v1, Vector2 v2)
@@ -74,6 +74,26 @@ namespace Orts.Core.Primitives
         public static bool operator !=(Vector2 v1, Vector2 v2)
         {
             return !(v1 == v2);
+        }
+
+        public static Vector2 operator +(Vector2 v1, Vector2 v2)
+        {
+            return v1.Add(v2);
+        }
+
+        public static Vector2 operator -(Vector2 v1, Vector2 v2)
+        {
+            return v1.Subtract(v2);
+        }
+
+        public static Vector2 operator *(Vector2 v, double d)
+        {
+            return v.Multiply(d);
+        }
+
+        public static Vector2 operator /(Vector2 v, double d)
+        {
+            return v.Divide(d);
         }
 
         public override int GetHashCode()

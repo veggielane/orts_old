@@ -9,12 +9,12 @@ namespace Orts.Core.Messages
 {
     public class ObjectPosition : BaseMessage
     {
-        public IMapGO Object { get; private set; }
+        public IMobileUnit Unit { get; private set; }
         public Vector2 Position { get; private set; }
 
-        public ObjectPosition(IMapGO mapGO, Vector2 position)
+        public ObjectPosition(IMobileUnit unit, Vector2 position)
         {
-            Object = mapGO;
+            Unit = unit;
             Position = position;
         }
     }

@@ -19,11 +19,6 @@ namespace Orts.Core
         public TickTime CurrentTickTime { get; private set; }
         public List<PlayerController> Players { get; set; }
 
-        public IEnumerable<IMapGO> MapItems()
-        {
-            return ObjectFactory.GameObjects.OfType<IMapGO>();
-        }
-
         public GameEngine(ObservableTimer timer, MessageBus bus, GameObjectFactory objectFactory)
         {
             Timer = timer;
@@ -43,7 +38,7 @@ namespace Orts.Core
             Timer.SubSample(5).Subscribe(t =>
                 {
                     Bus.SendAll();
-                    foreach (var item in ObjectFactory.GameObjects.OfType<IMapGO>())
+                    foreach (var item in ObjectFactory.GameObjects.OfType<IHasBrain>())
                     {
                         item.Brain.Think(t);
                     }

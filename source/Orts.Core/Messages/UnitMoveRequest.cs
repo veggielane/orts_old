@@ -9,10 +9,10 @@ namespace Orts.Core.Messages
 {
     public class UnitMoveRequest : BaseMessage, IUserCommand
     {
-        public IMapGO Unit { get; private set; }
+        public IMobileUnit Unit { get; private set; }
         public Vector2 Waypoint { get; private set; }
 
-        public UnitMoveRequest(IMapGO unit, Vector2 waypoint)
+        public UnitMoveRequest(IMobileUnit unit, Vector2 waypoint)
         {
             Unit = unit;
             Waypoint = waypoint;

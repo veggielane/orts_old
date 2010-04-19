@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Orts.Core.Brain.Module;
+using Orts.Core.GameObjects;
 using Orts.Core.Timing;
-using Orts.Core.Messages;
 
-namespace Orts.Core.Brain
+namespace Orts.Core.Brain.Module
 {
-    public interface IBrain : IHasMessageBus
+    public interface IBrainModule : IHasBrain
     {
         void Think(TickTime tickTime);
     }

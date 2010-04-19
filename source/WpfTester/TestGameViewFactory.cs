@@ -38,7 +38,7 @@ namespace WpfTester
             {
                 if (notification.GameObject is TestTank)
                 {
-                    var model = new TestTankViewModel((TestTank)notification.GameObject);
+                    var model = new TestTankViewModel(Bus, (TestTank)notification.GameObject);
 
                     TestTankView view = new TestTankView(model);
 

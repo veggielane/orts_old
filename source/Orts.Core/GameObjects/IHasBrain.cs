@@ -6,8 +6,10 @@ using Orts.Core.Brain;
 
 namespace Orts.Core.GameObjects
 {
-    public interface IMapGO : IGameObject, IHasPosition
+    public interface IHasBrain
     {
         IBrain Brain { get; }
+
+        void InitialiseBrain(IBrain brain);
     }
 }

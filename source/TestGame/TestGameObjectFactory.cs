@@ -7,6 +7,8 @@ using Orts.Core.Messages;
 using Orts.Core.Primitives;
 using Orts.Core.Brain;
 using Orts.Core.Collections;
+using Orts.Core.GameObjects.Components;
+using Orts.Core.Brain.Module;
 
 namespace TestGame
 {
@@ -23,11 +25,14 @@ namespace TestGame
 
             if (request.ObjectType == typeof(TestTank))
             {
-                var item = new TestTank(this.Bus, new SimpleBrain()) { Position = new Vector2(300, 300) };
+                var unit = new TestTank(new SimpleMovementController());
 
-                this.GameObjects.Add(item);
+                var brain = new SimpleBrain(Bus, unit, new WaypointModule(unit));
+                unit.InitialiseBrain(brain);
+                
+                this.GameObjects.Add(unit);
 
-                Bus.Add(new ObjectCreated(item));
+                Bus.Add(new ObjectCreated(unit));
             }
             base.CreateGameObject(request);
         }

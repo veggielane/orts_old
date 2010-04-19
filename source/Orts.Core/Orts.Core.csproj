@@ -43,8 +43,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Brain\IBrain.cs" />
-    <Compile Include="Brain\SimpleBrain.cs" />
-    <Compile Include="Collections\BasicBuffer.cs" />
+    <Compile Include="Brain\Module\IBrainModule.cs" />
+    <Compile Include="Brain\Module\WaypointModule.cs" />
+    <Compile Include="Brain\SimpleBrain.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Collections\Buffer.cs" />
     <Compile Include="Collections\IBuffer.cs" />
     <Compile Include="Collections\SafeCollection.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
@@ -52,10 +56,14 @@
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="GameEngine.cs" />
     <Compile Include="GameObjectFactory.cs" />
+    <Compile Include="GameObjects\BaseMobileUnit.cs" />
+    <Compile Include="GameObjects\Components\IMovementController.cs" />
+    <Compile Include="GameObjects\Components\SimpleMovementController.cs" />
     <Compile Include="GameObjects\GOGroup.cs" />
     <Compile Include="GameObjects\IGameObject.cs" />
-    <Compile Include="GameObjects\IHasPosition.cs" />
-    <Compile Include="GameObjects\IMapGO.cs" />
+    <Compile Include="GameObjects\IHasBrain.cs" />
+    <Compile Include="GameObjects\IMobileUnit.cs" />
+    <Compile Include="GameObjects\IUnit.cs" />
     <Compile Include="Messages\BusFilters.cs" />
     <Compile Include="Messages\IHasMessageBus.cs" />
     <Compile Include="Messages\IObjectLifetimeNotification.cs" />
@@ -73,6 +81,7 @@
     <Compile Include="Messages\UnitMoveRequest.cs" />
     <Compile Include="OrtsGlobals.cs" />
     <Compile Include="Players\PlayerController.cs" />
+    <Compile Include="Primitives\KinematicState.cs" />
     <Compile Include="Primitives\Vector2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reactive\AnonymousDisposable.cs" />

@@ -72,12 +72,14 @@ namespace WpfTester
 
     public class TestTankViewModel : INotifyPropertyChanged
     {
+        public MessageBus Bus { get; private set; }
         public Color Color { get; set; }
         public TestTank Tank { get; private set; }
         public Visibility Visible { get; set; }
 
-        public TestTankViewModel(TestTank tank)
+        public TestTankViewModel(MessageBus bus, TestTank tank)
         {
+            Bus = bus;
             Tank = tank;
             Color = Colors.Blue;
             Visible = Visibility.Visible;
@@ -117,7 +119,7 @@ namespace WpfTester
 
         internal void Destroy()
         {
-            Tank.Bus.Add(new ObjectDestructionRequest(Tank));
+            Bus.Add(new ObjectDestructionRequest(Tank));
         }
     }
 }
