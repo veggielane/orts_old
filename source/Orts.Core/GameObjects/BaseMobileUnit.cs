@@ -38,7 +38,7 @@ namespace Orts.Core.GameObjects
         public IBrain Brain { get; private set; }
         public IMovementController MovementController { get; private set; }
 
-        private KinematicState State { get; set; }
+        protected KinematicState State { get; set; }
 
         public BaseMobileUnit(IMovementController movementController)
         {

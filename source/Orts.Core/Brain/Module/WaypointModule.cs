@@ -5,6 +5,7 @@ using System.Text;
 using Orts.Core.GameObjects;
 using Orts.Core.Timing;
 using Orts.Core.Messages;
+using Orts.Core.Primitives;
 
 namespace Orts.Core.Brain.Module
 {
@@ -14,13 +15,11 @@ namespace Orts.Core.Brain.Module
 
         public IBrain Brain { get; private set; }
         public BaseMobileUnit Unit { get; private set; }
-        public List<IMobileUnit> VisibleUnits { get; private set; }
         public List<UnitMoveRequest> MoveRequests { get; private set; }
 
         public WaypointModule(BaseMobileUnit unit)
         {
             Unit = unit;
-            VisibleUnits = new List<IMobileUnit>();
             MoveRequests = new List<UnitMoveRequest>();
         }
 
@@ -28,7 +27,6 @@ namespace Orts.Core.Brain.Module
         {
             Brain = brain;
 
-            Brain.Bus.Filters.ObjectPositions.Where(p => !p.Unit.Equals(Unit)).Where(p => p.Position.Subtract(Unit.Position).Length < 30).Subscribe(p => VisibleUnits.Add(p.Unit));
             Brain.Bus.Filters.UserCommands.OfType<UnitMoveRequest>().Where(c => c.Unit == Unit).Subscribe(c => MoveRequests.Add(c));
         }
 
@@ -40,11 +38,26 @@ namespace Orts.Core.Brain.Module
                 Unit.MovementController.AddWaypoints(MoveRequests.Select(r => r.Waypoint).ToList());
                 MoveRequests.Clear();
             }
-            else
+            else if (Unit.MovementController.Waypoints.Count == 0 && Brain.VisibleUnits.Count > 0)
             {
+
+                var closestUnitDistance = Brain.VisibleUnits.Min(u => (u.Position - Unit.Position).Length);
+                
+                if (closestUnitDistance == 0)
+                {
+                    Unit.MovementController.SetWaypoint(Unit.Position + (new Vector2(rand.NextDouble() - 0.5, rand.NextDouble() - 0.5).Normal * 10));
+                }
+                else if(closestUnitDistance <= 100)
+                {
+                    var closestUnit = Brain.VisibleUnits.Where(u => (u.Position - Unit.Position).Length == closestUnitDistance).First();
+
+                    if (closestUnit != null)
+                    {
+                        Unit.MovementController.SetWaypoint(Unit.Position + ((closestUnit.Position - Unit.Position).Normal * -10));
+                    }
+                }
             }
 
-            VisibleUnits.Clear();
         }
     }
 }

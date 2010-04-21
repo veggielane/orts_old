@@ -19,9 +19,20 @@ namespace Orts.Core.GameObjects.Components
             MaxVelocity = 60;
         }
 
+        public void SetWaypoint(Vector2 waypoint)
+        {
+            Waypoints.Clear();
+            Waypoints.Add(waypoint);
+        }
+
         public void SetWaypoints(List<Vector2> waypoints)
         {
             Waypoints = waypoints;
+        }
+
+        public void AddWaypoint(Vector2 waypoint)
+        {
+            Waypoints.Add(waypoint);
         }
 
         public void AddWaypoints(List<Vector2> waypoints)

@@ -95,7 +95,7 @@ namespace WpfTester
                 .Where(t => (t.Item2 - t.Item1).Length <= 5).Select(t => t.Item1);
 
             RightSingleClick = MouseRightButtonDownObs.Zip(MouseRightButtonUpObs, (md, mu) => Tuple.Create(md, mu))
-                .Where(t => (t.Item2 - t.Item1).Length <= 5).Select(t => t.Item1);
+                .Select(t => t.Item1);
 
             LeftDrag = MouseLeftButtonDownObs.Zip(MouseLeftButtonUpObs, (md, mu) => Tuple.Create(md, mu))
                 .Where(t => (t.Item2 - t.Item1).Length > 5).Select(t => new Rect(t.Item1, t.Item2));

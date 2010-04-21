@@ -16,9 +16,10 @@ namespace TestGame
     {
         public bool Visible { get; private set; }
 
-        public TestTank(IMovementController movementController)
+        public TestTank(IMovementController movementController, KinematicState state)
             :base(movementController)
         {
+            State = state;
             Visible = true;
         }
 

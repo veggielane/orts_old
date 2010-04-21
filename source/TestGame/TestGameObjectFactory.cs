@@ -25,7 +25,7 @@ namespace TestGame
 
             if (request.ObjectType == typeof(TestTank))
             {
-                var unit = new TestTank(new SimpleMovementController());
+                var unit = new TestTank(new SimpleMovementController(), new KinematicState() { Position = new Vector2(200, 200) });
 
                 var brain = new SimpleBrain(Bus, unit, new WaypointModule(unit));
                 unit.InitialiseBrain(brain);
